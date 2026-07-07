@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INFINIWEB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Caveat:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --stone-face: #C6C6C6;
+    --stone-mid: #9C9C9C;
+    --stone-dark: #4B4B4B;
+    --stone-shadow: #2B2B2B;
+    --dirt: #6F4E2E;
+    --dirt-dark: #4A3220;
+    --grass: #6BAF3B;
+    --grass-dark: #4C8027;
+    --redstone: #C62828;
+    --redstone-dark: #7A1010;
+    --purple: #7A4FC0;
+    --purple-dark: #4E2F80;
+    --parchment: #F3E9D2;
+    --parchment-edge: #E4D4AC;
+    --manila: #D9C9A3;
+    --ink: #2E2313;
+    --cork: #B98A55;
+    --cork-dark: #8F6A3F;
+    --bg-deep: #232320;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    background: var(--bg-deep);
+    background-image:
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0 2px, transparent 2px 4px),
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.015) 0 2px, transparent 2px 4px);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+  }
+
+  a { color: inherit; }
+
+  /* ================= NAV / TABBAR ================= */
+  .tabbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 10px;
+    background: var(--dirt-dark);
+    border-bottom: 4px solid var(--stone-shadow);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .tabbar__btn {
+    font-family: 'VT323', monospace;
+    font-size: 18px;
+    letter-spacing: 0.5px;
+    background: var(--stone-face);
+    color: var(--ink);
+    border: none;
+    padding: 9px 16px;
+    cursor: pointer;
+    box-shadow:
+      inset 2px 2px 0 rgba(255,255,255,0.7),
+      inset -3px -3px 0 rgba(0,0,0,0.35);
+    transition: transform 0.05s ease;
+  }
+
+  .tabbar__btn:hover { background: #d4d4d4; }
+
+  .tabbar__btn:active,
+  .tabbar__btn.is-active {
+    background: var(--grass);
+    color: #14320a;
+    box-shadow:
+      inset -2px -2px 0 rgba(255,255,255,0.4),
+      inset 3px 3px 0 rgba(0,0,0,0.35);
+    transform: translateY(1px);
+  }
+
+  .tabbar__btn--admin {
+    background: var(--purple);
+    color: #f4eaff;
+  }
+
+  .tabbar__btn--admin.is-active {
+    background: var(--purple-dark);
+    color: #f4eaff;
+  }
+
+  /* ================= HERO ================= */
+  .hero {
+    text-align: center;
+    padding: 56px 20px 20px;
+  }
+
+  .hero__title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(26px, 6vw, 52px);
+    color: #EAF6D8;
+    text-shadow:
+      4px 4px 0 var(--grass-dark),
+      4px 4px 0 var(--grass-dark);
+    margin: 0;
+    letter-spacing: 2px;
+  }
+
+  .hero__tagline {
+    font-family: 'VT323', monospace;
+    font-size: 24px;
+    color: var(--stone-face);
+    margin: 14px 0 0;
+  }
+
+  /* ================= INTRO TEXT ================= */
+  .intro {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 24px 20px 40px;
+    text-align: center;
+  }
+
+  .intro p {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #EDEDED;
+    margin: 0 0 14px;
+  }
+
+  .support-link {
+    color: #9BE564;
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 2px dashed #9BE564;
+  }
+
+  .support-link:hover { color: #c3f79a; }
+
+  /* ================= MAIN CONTENT WRAPPER ================= */
+  .content {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 20px 50px;
+  }
+
+  .panel__heading {
+    font-family: 'VT323', monospace;
+    font-size: 26px;
+    letter-spacing: 1px;
+    color: var(--stone-face);
+    margin: 0 0 20px;
+    border-bottom: 3px solid var(--stone-shadow);
+    padding-bottom: 8px;
+  }
+
+  /* ================= STONE GUI PANEL (admin login / realm info) ================= */
+  .stone-panel {
+    background: var(--stone-face);
+    padding: 24px;
+    box-shadow:
+      inset 3px 3px 0 rgba(255,255,255,0.6),
+      inset -4px -4px 0 rgba(0,0,0,0.35),
+      0 6px 0 var(--stone-shadow);
+  }
+
+  .field {
+    margin-bottom: 16px;
+  }
+
+  .field label {
+    display: block;
+    font-family: 'VT323', monospace;
+    font-size: 19px;
+    margin-bottom: 5px;
+  }
+
+  .field input {
+    width: 100%;
+    padding: 10px 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    border: none;
+    background: #EDEDED;
+    box-shadow: inset 2px 2px 0 rgba(0,0,0,0.25), inset -1px -1px 0 rgba(255,255,255,0.6);
+  }
+
+  .field input:focus-visible {
+    outline: 3px solid var(--grass-dark);
+    outline-offset: 2px;
+  }
+
+  .btn-block {
+    font-family: 'VT323', monospace;
+    font-size: 20px;
+    background: var(--grass);
+    color: #14320a;
+    border: none;
+    padding: 11px 22px;
+    cursor: pointer;
+    box-shadow:
+      inset 2px 2px 0 rgba(255,255,255,0.5),
+      inset -3px -3px 0 rgba(0,0,0,0.3);
+  }
+
+  .btn-block:hover { background: #7fc94d; }
+  .btn-block:active { transform: translateY(1px); }
+
+  .login-msg {
+    margin-top: 14px;
+    font-family: 'VT323', monospace;
+    font-size: 19px;
+  }
+
+  .login-msg.ok { color: var(--grass-dark); }
+  .login-msg.err { color: var(--redstone); }
+
+  .admin-loggedin {
+    font-family: 'VT323', monospace;
+    font-size: 20px;
+  }
+
+  .admin-loggedin .who { color: var(--purple-dark); font-weight: 700; }
+
+  .realm-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--stone-shadow);
+    font-family: 'VT323', monospace;
+    font-size: 19px;
+  }
+
+  .realm-row:last-child { border-bottom: none; }
+  .realm-row .k { color: var(--dirt-dark); }
+  .realm-row .v { text-align: right; }
+
+  /* ================= PAPER (announcements) ================= */
+  .paper-stack { display: flex; flex-direction: column; gap: 26px; }
+
+  .paper {
+    background: var(--parchment);
+    padding: 22px 24px 26px;
+    position: relative;
+    box-shadow: 0 10px 18px rgba(0,0,0,0.45);
+  }
+
+  .paper:nth-child(odd) { transform: rotate(-0.6deg); }
+  .paper:nth-child(even) { transform: rotate(0.6deg); }
+
+  .paper::after {
+    content: "";
+    position: absolute;
+    top: 0; right: 0;
+    width: 0; height: 0;
+    border-style: solid;
+    border-width: 0 22px 22px 0;
+    border-color: transparent var(--parchment-edge) transparent transparent;
+  }
+
+  .paper .date {
+    font-family: 'VT323', monospace;
+    font-size: 15px;
+    color: var(--dirt-dark);
+    letter-spacing: 1px;
+  }
+
+  .paper h3 {
+    font-family: 'Inter', sans-serif;
+    font-size: 19px;
+    margin: 4px 0 10px;
+    color: var(--ink);
+  }
+
+  .paper p {
+    font-size: 15px;
+    line-height: 1.55;
+    margin: 0;
+    color: var(--ink);
+  }
+
+  /* ================= TOP SECRET PROJECT PAPER ================= */
+  .classified {
+    background: var(--manila);
+    padding: 26px 24px;
+    position: relative;
+    box-shadow: 0 10px 18px rgba(0,0,0,0.45);
+    margin-bottom: 26px;
+    border: 1px solid rgba(0,0,0,0.15);
+  }
+
+  .classified:last-child { margin-bottom: 0; }
+
+  .stamp {
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    border: 3px solid var(--redstone);
+    color: var(--redstone);
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 14px;
+    letter-spacing: 2px;
+    padding: 5px 10px;
+    transform: rotate(9deg);
+    mix-blend-mode: multiply;
+    opacity: 0.85;
+  }
+
+  .classified h3 {
+    font-family: 'VT323', monospace;
+    font-size: 24px;
+    margin: 0 0 4px;
+    padding-right: 110px;
+  }
+
+  .classified .codename {
+    font-family: 'VT323', monospace;
+    font-size: 15px;
+    color: var(--dirt-dark);
+    margin-bottom: 10px;
+  }
+
+  .classified p {
+    font-size: 15px;
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  /* ================= CORKBOARD (special commits) ================= */
+  .corkboard {
+    background: var(--cork);
+    background-image: radial-gradient(circle at 25% 20%, rgba(0,0,0,0.08) 0, transparent 35%),
+                       radial-gradient(circle at 75% 60%, rgba(0,0,0,0.08) 0, transparent 35%);
+    padding: 28px;
+    box-shadow: inset 0 0 0 6px var(--cork-dark), 0 6px 0 var(--stone-shadow);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 24px;
+  }
+
+  .quote-card {
+    background: var(--parchment);
+    padding: 18px 16px 16px;
+    position: relative;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.35);
+  }
+
+  .quote-card:nth-child(3n+1) { transform: rotate(-3deg); }
+  .quote-card:nth-child(3n+2) { transform: rotate(2deg); }
+  .quote-card:nth-child(3n+3) { transform: rotate(-1deg); }
+
+  .quote-card .pin {
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fff, var(--redstone) 45%, var(--redstone-dark) 100%);
+    box-shadow: 0 3px 4px rgba(0,0,0,0.4);
+  }
+
+  .quote-card .text {
+    font-family: 'Caveat', cursive;
+    font-size: 22px;
+    line-height: 1.3;
+    color: var(--ink);
+  }
+
+  .quote-card .who {
+    margin-top: 8px;
+    font-family: 'VT323', monospace;
+    font-size: 15px;
+    color: var(--dirt-dark);
+    text-align: right;
+  }
+
+  /* ================= DIFF-STYLE ADMIN LISTS ================= */
+  .diff-panel {
+    background: #1B1B1B;
+    padding: 4px;
+    box-shadow: 0 6px 0 var(--stone-shadow);
+    overflow-x: auto;
+  }
+
+  table.diff-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'VT323', monospace;
+    font-size: 18px;
+    min-width: 480px;
+  }
+
+  table.diff-table th {
+    text-align: left;
+    color: #8a8a8a;
+    padding: 10px 14px;
+    border-bottom: 1px solid #333;
+    font-weight: 400;
+  }
+
+  table.diff-table td {
+    padding: 9px 14px;
+    color: var(--redstone);
+    border-bottom: 1px solid #2a2a2a;
+  }
+
+  table.diff-table tr:hover td { background: rgba(198,40,40,0.08); }
+
+  .admin-gate-msg {
+    font-family: 'VT323', monospace;
+    font-size: 20px;
+    color: var(--stone-face);
+    text-align: center;
+    padding: 30px 10px;
+  }
+
+  /* ================= STAFF ================= */
+  .staff {
+    max-width: 720px;
+    margin: 10px auto 0;
+    padding: 24px 20px;
+    text-align: center;
+  }
+
+  .staff__heading {
+    font-family: 'VT323', monospace;
+    font-size: 22px;
+    color: var(--stone-face);
+    margin: 0 0 14px;
+    letter-spacing: 1px;
+  }
+
+  .staff__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 15px;
+    color: #EDEDED;
+  }
+
+  .staff__list strong { color: #ffffff; }
+
+  /* ================= FOOTER ================= */
+  .site-footer {
+    text-align: center;
+    padding: 30px 20px 50px;
+    border-top: 2px solid var(--stone-shadow);
+    margin-top: 20px;
+  }
+
+  .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    font-size: 14px;
+  }
+
+  .footer-links a {
+    color: #9BE564;
+    text-decoration: none;
+  }
+
+  .footer-links a:hover { text-decoration: underline; }
+
+  .footer-links span { color: #666; }
+
+  .copyright {
+    font-family: 'VT323', monospace;
+    font-size: 15px;
+    color: #888;
+    margin: 0;
+  }
+
+  @media (max-width: 560px) {
+    .tabbar { justify-content: center; }
+    .classified h3 { padding-right: 0; }
+    .stamp { position: static; display: inline-block; margin-bottom: 10px; transform: rotate(-3deg); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= NAV ================= -->
+<nav class="tabbar" id="tabbar">
+  <button class="tabbar__btn is-active" data-tab="announcements">Important Announcements</button>
+  <button class="tabbar__btn" data-tab="admin">Admin Login</button>
+  <button class="tabbar__btn" data-tab="realm">Current Realm</button>
+  <button class="tabbar__btn" data-tab="projects">Projects</button>
+  <button class="tabbar__btn" data-tab="commits">Special Commits</button>
+  <button class="tabbar__btn tabbar__btn--admin" data-tab="banlist" id="tab-btn-banlist" hidden>^Banlist</button>
+  <button class="tabbar__btn tabbar__btn--admin" data-tab="watchdog" id="tab-btn-watchdog" hidden>^Watch Dog</button>
+</nav>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <h1 class="hero__title">INFINIWEB</h1>
+  <p class="hero__tagline">(yo guys we got a website 😱)</p>
+</header>
+
+<!-- ================= INTRO ================= -->
+<section class="intro">
+  <p>Yo guys welcome to the website, isn't it so flippin' tuff? Anyways use this website for Realm Updates, Important Announcements, and other stuff.</p>
+  <!-- TODO: replace the href below with your real Discord #support channel link -->
+  <p>To ask questions or report issues on the website go to the <a class="support-link" href="https://discord.gg/REPLACE-WITH-YOUR-INVITE" target="_blank" rel="noopener">#🚨support</a> channel in the discord.</p>
+</section>
+
+<!-- ================= TAB CONTENT ================= -->
+<main class="content" id="content">
+
+  <section class="panel" data-panel="announcements">
+    <h2 class="panel__heading">Important Announcements</h2>
+    <div class="paper-stack" id="announcements-list"></div>
+  </section>
+
+  <section class="panel" data-panel="admin" hidden>
+    <h2 class="panel__heading">Admin Login</h2>
+    <div class="stone-panel">
+      <div id="admin-logged-out">
+        <div class="field">
+          <label for="admin-user">👤 Username...</label>
+          <input type="text" id="admin-user" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="admin-pass">🔑 Password...</label>
+          <input type="password" id="admin-pass" autocomplete="off">
+        </div>
+        <button class="btn-block" id="admin-submit">Log In</button>
+        <div class="login-msg" id="admin-msg"></div>
+      </div>
+      <div id="admin-logged-in" class="admin-loggedin" hidden>
+        <p>🔓 Logged in as <span class="who" id="admin-who"></span>. The <strong>^Banlist</strong> and <strong>^Watch Dog</strong> tabs are unlocked up top.</p>
+        <button class="btn-block" id="admin-logout">Log Out</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" data-panel="realm" hidden>
+    <h2 class="panel__heading">Current Realm</h2>
+    <div class="stone-panel" id="realm-info"></div>
+  </section>
+
+  <section class="panel" data-panel="projects" hidden>
+    <h2 class="panel__heading">Projects</h2>
+    <div id="projects-list"></div>
+  </section>
+
+  <section class="panel" data-panel="commits" hidden>
+    <h2 class="panel__heading">Special Commits</h2>
+    <div class="corkboard" id="commits-board"></div>
+  </section>
+
+  <section class="panel" data-panel="banlist" hidden>
+    <h2 class="panel__heading">^Banlist</h2>
+    <div id="banlist-wrap"></div>
+  </section>
+
+  <section class="panel" data-panel="watchdog" hidden>
+    <h2 class="panel__heading">^Watch Dog</h2>
+    <div id="watchdog-wrap"></div>
+  </section>
+
+</main>
+
+<!-- ================= STAFF ================= -->
+<section class="staff">
+  <h3 class="staff__heading">Staff</h3>
+  <ul class="staff__list">
+    <li>🟪 Realm Administrator: <strong>Koritono</strong></li>
+    <li>🌐 Website Manager: <strong>GermanLightning7</strong></li>
+    <li>💾 Server Manager: <strong>GermanLightning7</strong></li>
+  </ul>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer class="site-footer">
+  <!-- TODO: replace these three hrefs with your real links -->
+  <nav class="footer-links">
+    <a href="REPLACE-WITH-BAN-APPEAL-LINK" target="_blank" rel="noopener">Ban Appeal</a>
+    <span>·</span>
+    <a href="REPLACE-WITH-ASK-QUESTIONS-LINK" target="_blank" rel="noopener">Ask Questions</a>
+    <span>·</span>
+    <a href="REPLACE-WITH-VIDEO-LINK" target="_blank" rel="noopener">Very Important Video All Need To Watch ASAP</a>
+  </nav>
+  <p class="copyright">©️ All rights reserved - GermanLightning7 @2026</p>
+</footer>
+
+<script>
+  /* =====================================================================
+     EDIT ZONE — everything you'll want to update lives in these arrays/objects.
+     ===================================================================== */
+
+  // ----- Important Announcements (newest first) -----
+  const ANNOUNCEMENTS = [
+    {
+      date: "July 7, 2026",
+      title: "Welcome to the new site!",
+      body: "This is a placeholder announcement — edit or delete this and add real ones in the ANNOUNCEMENTS array below."
+    },
+    {
+      date: "July 1, 2026",
+      title: "Realm restart schedule",
+      body: "Add real announcement text here. Each entry in the array becomes its own paper."
+    }
+  ];
+
+  // ----- Current Realm info -----
+  const REALM_INFO = {
+    "Realm Code": "XXXX-XXXX",
+    "Seed": "put your seed here",
+    "Plugins / Add-ons": "list your plugins or add-ons here",
+    "Future Realm Names": "brainstorm list here"
+  };
+
+  // ----- Projects (Top Secret papers) -----
+  const PROJECTS = [
+    {
+      codename: "OPERATION: [codename here]",
+      title: "Project title here",
+      body: "Describe what Management is working on. Add as many of these objects as you want to PROJECTS."
+    }
+  ];
+
+  // ----- Special Commits (pinned quotes — add these yourself as people request them) -----
+  const COMMITS = [
+    { text: "put a submitted quote here", who: "— username" },
+    { text: "put another quote here", who: "— username" }
+  ];
+
+  // ----- Banlist -----
+  const BANLIST = [
+    { user: "TotallyJosuku", reason: "Complete AFK", length: "PERMA", status: "Active" }
+  ];
+
+  // ----- Watch Dog -----
+  const WATCHDOG = [
+    { user: "raulmenendez0379", reason: "Racial Slurs" }
+  ];
+
+  // ----- Admin credentials -----
+  // NOTE: this is a static site with no server, so this check happens entirely
+  // in the browser. Anyone who views page source can see these values regardless
+  // of whether they know the password — treat this as a fun gate for friends,
+  // not real security, and don't put anything here you'd be upset to have seen.
+  const ADMIN_USERS = {
+    "Koritono": "88911TuffAsf",
+    "GermanLightning7": "88911TuffAsf"
+  };
+
+  /* =====================================================================
+     RENDERING — you shouldn't need to touch below this line.
+     ===================================================================== */
+
+  function renderAnnouncements() {
+    const el = document.getElementById('announcements-list');
+    el.innerHTML = ANNOUNCEMENTS.map(a => `
+      <div class="paper">
+        <div class="date">${a.date}</div>
+        <h3>${a.title}</h3>
+        <p>${a.body}</p>
+      </div>
+    `).join('');
+  }
+
+  function renderRealm() {
+    const el = document.getElementById('realm-info');
+    el.innerHTML = Object.entries(REALM_INFO).map(([k, v]) => `
+      <div class="realm-row"><span class="k">${k}</span><span class="v">${v}</span></div>
+    `).join('');
+  }
+
+  function renderProjects() {
+    const el = document.getElementById('projects-list');
+    el.innerHTML = PROJECTS.map(p => `
+      <div class="classified">
+        <div class="stamp">[TOP SECRET]</div>
+        <h3>${p.title}</h3>
+        <div class="codename">${p.codename}</div>
+        <p>${p.body}</p>
+      </div>
+    `).join('');
+  }
+
+  function renderCommits() {
+    const el = document.getElementById('commits-board');
+    el.innerHTML = COMMITS.map(q => `
+      <div class="quote-card">
+        <div class="pin"></div>
+        <div class="text">"${q.text}"</div>
+        <div class="who">${q.who}</div>
+      </div>
+    `).join('');
+  }
+
+  function renderBanlist() {
+    const el = document.getElementById('banlist-wrap');
+    el.innerHTML = `
+      <div class="diff-panel">
+        <table class="diff-table">
+          <tr><th>User</th><th>Reason</th><th>Length</th><th>Status</th></tr>
+          ${BANLIST.map(b => `<tr><td>- ${b.user}</td><td>${b.reason}</td><td>${b.length}</td><td>${b.status}</td></tr>`).join('')}
+        </table>
+      </div>
+    `;
+  }
+
+  function renderWatchdog() {
+    const el = document.getElementById('watchdog-wrap');
+    el.innerHTML = `
+      <div class="diff-panel">
+        <table class="diff-table">
+          <tr><th>User</th><th>Reason</th></tr>
+          ${WATCHDOG.map(w => `<tr><td>- ${w.user}</td><td>${w.reason}</td></tr>`).join('')}
+        </table>
+      </div>
+    `;
+  }
+
+  /* ----- Tab switching ----- */
+  function showTab(tabName) {
+    document.querySelectorAll('.tabbar__btn').forEach(b => b.classList.toggle('is-active', b.dataset.tab === tabName));
+    document.querySelectorAll('.panel').forEach(p => p.hidden = p.dataset.panel !== tabName);
+  }
+
+  document.getElementById('tabbar').addEventListener('click', e => {
+    const btn = e.target.closest('.tabbar__btn');
+    if (!btn || btn.hidden) return;
+    showTab(btn.dataset.tab);
+  });
+
+  /* ----- Admin login ----- */
+  function setLoggedInUI(username) {
+    document.getElementById('admin-logged-out').hidden = true;
+    document.getElementById('admin-logged-in').hidden = false;
+    document.getElementById('admin-who').textContent = username;
+    document.getElementById('tab-btn-banlist').hidden = false;
+    document.getElementById('tab-btn-watchdog').hidden = false;
+  }
+
+  function setLoggedOutUI() {
+    document.getElementById('admin-logged-out').hidden = false;
+    document.getElementById('admin-logged-in').hidden = true;
+    document.getElementById('admin-user').value = '';
+    document.getElementById('admin-pass').value = '';
+    document.getElementById('admin-msg').textContent = '';
+    document.getElementById('tab-btn-banlist').hidden = true;
+    document.getElementById('tab-btn-watchdog').hidden = true;
+    if (document.querySelector('[data-tab="banlist"]').classList.contains('is-active') ||
+        document.querySelector('[data-tab="watchdog"]').classList.contains('is-active')) {
+      showTab('admin');
+    }
+  }
+
+  document.getElementById('admin-submit').addEventListener('click', () => {
+    const user = document.getElementById('admin-user').value.trim();
+    const pass = document.getElementById('admin-pass').value;
+    const msg = document.getElementById('admin-msg');
+
+    if (ADMIN_USERS[user] && ADMIN_USERS[user] === pass) {
+      sessionStorage.setItem('infiniweb_admin', user);
+      msg.textContent = '';
+      setLoggedInUI(user);
+    } else {
+      msg.textContent = '❌ Access denied. Nice try though.';
+      msg.className = 'login-msg err';
+    }
+  });
+
+  document.getElementById('admin-logout').addEventListener('click', () => {
+    sessionStorage.removeItem('infiniweb_admin');
+    setLoggedOutUI();
+  });
+
+  // allow Enter key to submit the login form
+  document.getElementById('admin-pass').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('admin-submit').click();
+  });
+
+  /* ----- Init ----- */
+  renderAnnouncements();
+  renderRealm();
+  renderProjects();
+  renderCommits();
+  renderBanlist();
+  renderWatchdog();
+
+  const savedAdmin = sessionStorage.getItem('infiniweb_admin');
+  if (savedAdmin && ADMIN_USERS[savedAdmin]) {
+    setLoggedInUI(savedAdmin);
+  }
+</script>
+
+</body>
+</html>
