@@ -1,1 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ServerOps: The Mod Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/components.css">
+</head>
+<body>
 
+<div id="introOverlay">
+  <div class="introcard">
+    <h1>SERVEROPS // THE MOD DESK</h1>
+    <div class="tag">a moderation &amp; upkeep management sim</div>
+    <p>You just inherited the keys to a gaming server's staff team. Promote the right people, discipline the wrong ones, keep the books balanced, and don't let anyone burn out. Each Monday, the changes you've queued go live &mdash; for better or worse.</p>
+
+    <input type="text" id="serverNameInput" placeholder="Name your server (optional)" maxlength="28">
+    <input type="text" id="ownerNameInput" placeholder="Your username (optional, Tiffa will use it)" maxlength="20">
+
+    <div class="section-title" style="margin-top:4px;">DIFFICULTY</div>
+    <div class="diff-row" id="diffRow">
+      <button class="diffbtn" data-diff="casual">Casual</button>
+      <button class="diffbtn active" data-diff="standard">Standard</button>
+      <button class="diffbtn" data-diff="brutal">Brutal</button>
+    </div>
+
+    <button class="startbtn" id="startBtn">Take The Desk &#9658;</button>
+    <button class="startbtn ghost" id="continueBtn" style="display:none;">Continue Saved Game</button>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+  <header id="topbar">
+    <div class="brand">
+      <div class="name" id="serverNameLbl">SERVER</div>
+      <div class="day" id="dayLbl">Day 1 &middot; Monday</div>
+    </div>
+    <div class="meters">
+      <div class="meter">
+        <div class="lbl">LOYALTY</div>
+        <div class="track"><div class="fill fill-loy" id="m-loy" style="width:0%"></div></div>
+        <div class="val" id="m-loy-v">0</div>
+      </div>
+      <div class="meter">
+        <div class="lbl">SATISFACTION</div>
+        <div class="track"><div class="fill fill-sat" id="m-sat" style="width:0%"></div></div>
+        <div class="val" id="m-sat-v">0</div>
+      </div>
+      <div class="meter">
+        <div class="lbl">DRAMA</div>
+        <div class="track"><div class="fill fill-dra" id="m-dra" style="width:0%"></div></div>
+        <div class="val" id="m-dra-v">0</div>
+      </div>
+      <div class="meter">
+        <div class="lbl">POPULATION</div>
+        <div class="track"><div class="fill" id="m-pop" style="width:0%;background:var(--teal)"></div></div>
+        <div class="val" id="m-pop-v">0 / 0</div>
+      </div>
+      <div class="meter">
+        <div class="lbl">BUDGET</div>
+        <div class="track"><div class="fill" id="m-bud" style="width:0%;background:var(--gold-stat)"></div></div>
+        <div class="val" id="m-bud-v">$0</div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="iconbtn" id="eventBtn" title="Host a staff appreciation event">Appreciation Event</button>
+      <button class="iconbtn" id="recruitBtn" title="Recruit a new Junior Mod">Recruit</button>
+      <button class="iconbtn" id="helpBtn" title="How to play">?</button>
+      <button class="iconbtn" id="saveBtn" title="Save game">Save</button>
+      <button class="iconbtn" id="restartBtn" title="Start a new game">New Game</button>
+      <button id="endDayBtn">End Day &#9658;</button>
+    </div>
+  </header>
+
+  <div id="main">
+    <nav id="sidenav">
+      <button class="navbtn active" data-tab="roster">ROSTER <span class="count" id="cnt-roster"></span></button>
+      <button class="navbtn" data-tab="incidents">INCIDENTS <span class="count" id="cnt-incidents"></span></button>
+      <button class="navbtn" data-tab="draft">DRAFT NEWS <span class="count" id="cnt-draft"></span></button>
+      <button class="navbtn" data-tab="elections">ELECTIONS <span class="count" id="cnt-elections"></span></button>
+      <button class="navbtn" data-tab="log">LOG</button>
+    </nav>
+    <section id="content">
+
+      <div class="panel active" id="panel-roster">
+        <h2>STAFF ROSTER</h2>
+        <div class="sub">Click a card to open a personnel file.</div>
+        <div id="rosterInfo"></div>
+        <div class="roster-toolbar">
+          <input type="text" id="rosterSearch" placeholder="Search username or trait...">
+          <select id="rosterRankFilter">
+            <option value="all">All ranks</option>
+          </select>
+          <select id="rosterSort">
+            <option value="rank">Sort: Rank</option>
+            <option value="name">Sort: Name</option>
+            <option value="hours">Sort: Hours/wk</option>
+            <option value="tenure">Sort: Tenure</option>
+          </select>
+        </div>
+        <div id="rosterList" class="roster-grid"></div>
+      </div>
+
+      <div class="panel" id="panel-incidents">
+        <h2>INCIDENT DESK</h2>
+        <div class="sub">Minor and moderate reports land here. Major incidents interrupt you immediately. Ignoring a real report has its own consequences &mdash; so does punishing on thin evidence.</div>
+        <div id="incidentList"></div>
+      </div>
+
+      <div class="panel" id="panel-draft">
+        <h2>DRAFT STAFF NEWS</h2>
+        <div class="sub">Changes queued here go live next Monday when you send the Staff News &mdash; unless you use an Emergency action first.</div>
+        <div id="draftList"></div>
+      </div>
+
+      <div class="panel" id="panel-elections">
+        <h2>OPEN SEATS</h2>
+        <div class="sub">Vacant Supervisor or Head Admin seats trigger a short election among eligible candidates instead of an instant auto-fill.</div>
+        <div id="electionList"></div>
+      </div>
+
+      <div class="panel" id="panel-log">
+        <h2>OPERATIONS LOG</h2>
+        <div class="sub">Everything that's happened, most recent first.</div>
+        <div id="logList"></div>
+      </div>
+
+    </section>
+  </div>
+
+  <footer id="bottombar">
+    <button class="stampbtn" id="btn-staffnews">STAFF NEWS</button>
+    <button class="stampbtn" id="btn-epromote">EMERGENCY PROMOTE</button>
+    <button class="stampbtn warn" id="btn-edemote">EMERGENCY DEMOTE</button>
+    <button class="stampbtn" id="btn-tiffa">DIRECTOR OF STAFF</button>
+  </footer>
+
+  <button id="tiffaNotifBtn">TIFFA'S NOTIFICATIONS <span id="tiffaNotifBadge"></span></button>
+</div>
+
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
+
+<script src="js/data.js"></script>
+<script src="js/state.js"></script>
+<script src="js/mechanics.js"></script>
+<script src="js/render.js"></script>
+<script src="js/modals.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
